@@ -1,7 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
-using System.Text.RegularExpressions;
+using System.Text.Json;
 using WhatsNewInNET7APIs;
 
 //DemonstrateMath();
@@ -145,6 +146,34 @@ static void DemonstrateRegularExpressions()
 	var id = Guid.NewGuid();
 	Console.WriteLine(GuidRegex.GetRegex().IsMatch(id.ToString()));
 	Console.WriteLine(GuidRegex.GetRegex().IsMatch(id.ToString("N")));
+}
+
+//DemonstrateStringSyntax();
+
+static void DemonstrateStringSyntax()
+{
+	static int SumJson([StringSyntax(StringSyntaxAttribute.Json)] string json)
+	{
+		var content = JsonDocument.Parse(json);
+		var sum = 0;
+
+		foreach(var value in content.RootElement.GetProperty("values").EnumerateArray())
+		{
+			sum += value.GetInt32();
+		}
+
+		return sum;
+	}
+
+	Console.WriteLine(nameof(DemonstrateStringSyntax));
+	Console.WriteLine();
+
+	Console.WriteLine(SumJson(
+		"""
+		{
+			"values": [1, 3, 7, 22]
+		}
+		"""));
 }
 
 //DemonstrateImmutableCollections();

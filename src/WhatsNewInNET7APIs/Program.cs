@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Formats.Tar;
 using System.Numerics;
 using System.Text.Json;
 using WhatsNewInNET7APIs;
@@ -231,5 +232,34 @@ static void DemonstrateLinqOrder()
 	foreach (var newItem in newOrder)
 	{
 		Console.WriteLine(newItem);
+	}
+}
+
+DemonstrateTar();
+
+static void DemonstrateTar()
+{
+	Console.WriteLine(nameof(DemonstrateTar));
+	Console.WriteLine();
+
+	var tarFilePath = Path.Combine(Directory.GetCurrentDirectory(), "..\\content.tar");
+
+	File.Delete(tarFilePath);
+
+	TarFile.CreateFromDirectory(Directory.GetCurrentDirectory(), "..\\content.tar", true);
+
+	using var file = new FileStream(tarFilePath, FileMode.Open);
+	using var reader = new TarReader(file);
+
+	while(true)
+	{
+		var entry = reader.GetNextEntry();
+
+		if(entry is null)
+		{
+			break;
+		}
+
+		Console.WriteLine(entry);
 	}
 }

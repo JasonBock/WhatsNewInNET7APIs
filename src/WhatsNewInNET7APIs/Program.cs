@@ -1,10 +1,30 @@
-﻿using System.Collections.Immutable;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Formats.Tar;
 using System.Numerics;
 using System.Text.Json;
 using WhatsNewInNET7APIs;
+
+//DemonstrateNullableAnnotations();
+
+static void DemonstrateNullableAnnotations()
+{
+	Console.WriteLine(nameof(DemonstrateNullableAnnotations));
+	Console.WriteLine();
+
+	var services = new ServiceCollection();
+	services.AddSingleton<IData, Data>();
+
+	var provider = services.BuildServiceProvider();
+	var data = provider.GetService(typeof(IData)) as Data;
+
+	if(data is not null)
+	{
+		Console.WriteLine(data.Name);
+	}
+}
 
 //DemonstrateMath();
 
@@ -226,6 +246,8 @@ static void DemonstrateLinqOrder()
 		Console.WriteLine(name);
 	}
 
+	Console.WriteLine();
+
 	// Now, it's a little simpler:
 	Console.WriteLine("Order");
 	var newOrder = items.Order();
@@ -235,7 +257,7 @@ static void DemonstrateLinqOrder()
 	}
 }
 
-DemonstrateTar();
+//DemonstrateTar();
 
 static void DemonstrateTar()
 {
@@ -251,15 +273,12 @@ static void DemonstrateTar()
 	using var file = new FileStream(tarFilePath, FileMode.Open);
 	using var reader = new TarReader(file);
 
-	while(true)
+	var entry = reader.GetNextEntry();
+
+	while (entry is not null)
 	{
-		var entry = reader.GetNextEntry();
-
-		if(entry is null)
-		{
-			break;
-		}
-
 		Console.WriteLine(entry);
+
+		entry = reader.GetNextEntry();
 	}
 }

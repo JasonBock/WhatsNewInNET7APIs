@@ -16,7 +16,7 @@ public sealed class DisposableResource
 		return this.stream.Length;
 	}
 
-	public long GetStreamSizeNew()
+	public long GetStreamSizeThrowIf()
 	{
 		ObjectDisposedException.ThrowIf(this.disposedValue, this);
 		return this.stream.Length;
@@ -31,23 +31,9 @@ public sealed class DisposableResource
 				this.stream.Dispose();
 			}
 
-			// TODO: free unmanaged resources (unmanaged objects) and override finalizer
-			// TODO: set large fields to null
 			this.disposedValue = true;
 		}
 	}
 
-	// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-	// ~DisposableResource()
-	// {
-	//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-	//     Dispose(disposing: false);
-	// }
-
-	public void Dispose()
-	{
-		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		this.Dispose(disposing: true);
-		GC.SuppressFinalize(this);
-	}
+   public void Dispose() => this.Dispose(true);
 }

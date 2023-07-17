@@ -3,11 +3,12 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Formats.Tar;
+using System.Globalization;
 using System.Numerics;
 using System.Text.Json;
 using WhatsNewInNET7APIs;
 
-//DemonstrateNullableAnnotations();
+DemonstrateNullableAnnotations();
 
 static void DemonstrateNullableAnnotations()
 {
@@ -15,12 +16,12 @@ static void DemonstrateNullableAnnotations()
 	Console.WriteLine();
 
 	var services = new ServiceCollection();
-	services.AddSingleton<IData, Data>();
+	services.AddSingleton<IPerson, Person>();
 
 	var provider = services.BuildServiceProvider();
-	var data = provider.GetService(typeof(IData)) as Data;
+	var data = provider.GetService(typeof(IPerson)) as Person;
 
-	if(data is not null)
+	if (data is not null)
 	{
 		Console.WriteLine(data.Name);
 	}
@@ -37,9 +38,14 @@ static void DemonstrateMath()
 	static T Add<T>(T left, T right)
 		where T : INumber<T> => left + right;
 
+	static T AddCustom<T>(T left, T right)
+		where T : IAdditionOperators<T, T, T> => left + right;
+
 	Console.WriteLine(Add(3, 4));
 	Console.WriteLine(Add(3.4, 4.3));
-	Console.WriteLine(Add(BigInteger.Parse("49043910940940104390"), BigInteger.Parse("59839583901984390184")));
+	Console.WriteLine(Add(
+		BigInteger.Parse("49043910940940104390", CultureInfo.CurrentCulture),
+		BigInteger.Parse("59839583901984390184", CultureInfo.CurrentCulture)));
 
 	Console.WriteLine();
 
@@ -56,12 +62,12 @@ static void DemonstrateParseable()
 	Console.WriteLine();
 
 	var value = "3";
-	Console.WriteLine(int.Parse(value));
+	Console.WriteLine(int.Parse(value, CultureInfo.CurrentCulture));
 
-   if (int.TryParse(value, out var result))
-   {
-	  Console.WriteLine(result);
-   }
+	if (int.TryParse(value, out var result))
+	{
+		Console.WriteLine(result);
+	}
 }
 
 //DemonstrateMoreOneLineThrows();
@@ -111,14 +117,14 @@ static void DemonstrateObjectDisposeException()
 	{
 		resource.GetStreamSize();
 	}
-	catch(ObjectDisposedException e)
+	catch (ObjectDisposedException e)
 	{
 		Console.WriteLine(e.Message);
 	}
 
 	try
 	{
-		resource.GetStreamSizeNew();
+		resource.GetStreamSizeThrowIf();
 	}
 	catch (ObjectDisposedException e)
 	{
@@ -157,18 +163,6 @@ static void DemonstrateUnreachableException()
 	Console.WriteLine(EvaluateTemperature(-273.15d));
 }
 
-//DemonstrateRegularExpressions();
-
-static void DemonstrateRegularExpressions()
-{
-	Console.WriteLine(nameof(DemonstrateRegularExpressions));
-	Console.WriteLine();
-
-	var id = Guid.NewGuid();
-	Console.WriteLine(GuidRegex.GetRegex().IsMatch(id.ToString()));
-	Console.WriteLine(GuidRegex.GetRegex().IsMatch(id.ToString("N")));
-}
-
 //DemonstrateStringSyntax();
 
 static void DemonstrateStringSyntax()
@@ -178,7 +172,7 @@ static void DemonstrateStringSyntax()
 		var content = JsonDocument.Parse(json);
 		var sum = 0;
 
-		foreach(var value in content.RootElement.GetProperty("values").EnumerateArray())
+		foreach (var value in content.RootElement.GetProperty("values").EnumerateArray())
 		{
 			sum += value.GetInt32();
 		}
@@ -192,7 +186,7 @@ static void DemonstrateStringSyntax()
 	Console.WriteLine(SumJson(
 		"""
 		{
-			"values": [1, 3, 7, 22]
+			"values" [1, 3, 7, 22]
 		}
 		"""));
 }
@@ -239,21 +233,21 @@ static void DemonstrateLinqOrder()
 
 	Console.WriteLine();
 
-	var names = new[] { "Jason", "Jane", "Don" };
-
-	foreach (var name in names.Order())
-	{
-		Console.WriteLine(name);
-	}
-
-	Console.WriteLine();
-
 	// Now, it's a little simpler:
 	Console.WriteLine("Order");
 	var newOrder = items.Order();
 	foreach (var newItem in newOrder)
 	{
 		Console.WriteLine(newItem);
+	}
+
+	Console.WriteLine();
+
+	var names = new[] { "Jason", "Jane", "Don" };
+
+	foreach (var name in names.Order())
+	{
+		Console.WriteLine(name);
 	}
 }
 
@@ -281,4 +275,16 @@ static void DemonstrateTar()
 
 		entry = reader.GetNextEntry();
 	}
+}
+
+//DemonstrateRegularExpressions();
+
+static void DemonstrateRegularExpressions()
+{
+	Console.WriteLine(nameof(DemonstrateRegularExpressions));
+	Console.WriteLine();
+
+	var id = Guid.NewGuid();
+	Console.WriteLine(GuidRegex.GetRegex().IsMatch(id.ToString()));
+	Console.WriteLine(GuidRegex.GetRegex().IsMatch(id.ToString("N")));
 }
